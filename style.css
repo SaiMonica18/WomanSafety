@@ -1,50 +1,564 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-    text-align: center;
+/* =========================================
+   SMART WOMEN SAFETY
+   PROFESSIONAL EMERGENCY UI
+   ========================================= */
+
+/* ---------- GLOBAL ---------- */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+
+    min-height: 100vh;
+
+    color: #e8eef7;
+
+    background:
+        radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.20), transparent 30%),
+        radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.12), transparent 30%),
+        linear-gradient(135deg, #07111f, #0b1730 55%, #08111f);
+
+    background-attachment: fixed;
+}
+
+
+/* ---------- HOME PAGE ---------- */
 
 .container {
-    width: 350px;
-    margin: 100px auto;
-    padding: 30px;
-    background-color: white;
-    border-radius: 10px;
+
+    width: min(460px, 92%);
+
+    margin: 90px auto;
+
+    padding: 42px 38px;
+
+    text-align: center;
+
+    background: rgba(15, 27, 48, 0.88);
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+    backdrop-filter: blur(15px);
+
+    animation: fadeIn 0.7s ease;
 }
 
-h1 {
-    color: #333;
+
+/* ---------- HOME TITLE ---------- */
+
+.container h1 {
+
+    font-size: 32px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.5px;
+
+    color: #ffffff;
+
+    margin-bottom: 8px;
 }
+
+
+.container h2 {
+
+    font-size: 17px;
+
+    font-weight: 500;
+
+    color: #8fa8c7;
+
+    margin-bottom: 28px;
+}
+
+
+/* ---------- USER INFORMATION ---------- */
+
+#userInfo {
+
+    font-size: 15px;
+
+    line-height: 1.9;
+
+    color: #b9c9dc;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    border-radius: 14px;
+
+    padding: 14px;
+
+    margin-bottom: 25px;
+}
+
+
+/* ---------- SOS BUTTON ---------- */
+
+#sosButton,
+.sos-button {
+
+    width: 100%;
+
+    min-height: 72px;
+
+    border: none;
+
+    border-radius: 16px;
+
+    background: linear-gradient(
+        135deg,
+        #ef4444,
+        #dc2626
+    );
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 10px 25px rgba(239, 68, 68, 0.30);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+
+#sosButton:hover,
+.sos-button:hover {
+
+    transform: translateY(-2px);
+
+    filter: brightness(1.08);
+
+    box-shadow:
+        0 15px 32px rgba(239, 68, 68, 0.40);
+}
+
+
+#sosButton:active,
+.sos-button:active {
+
+    transform: scale(0.98);
+}
+
+
+/* ---------- STATUS ---------- */
+
+#status {
+
+    min-height: 25px;
+
+    margin-top: 20px;
+
+    font-size: 14px;
+
+    color: #7dd3fc;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   DASHBOARD
+   ========================================= */
+
+.dashboard-container {
+
+    width: min(1100px, 94%);
+
+    margin: 45px auto;
+
+    padding: 35px;
+
+    animation: fadeIn 0.7s ease;
+}
+
+
+/* ---------- DASHBOARD HEADER ---------- */
+
+.dashboard-container > h1 {
+
+    text-align: center;
+
+    font-size: 34px;
+
+    color: #ffffff;
+
+    margin-bottom: 8px;
+
+    letter-spacing: -0.5px;
+}
+
+
+.dashboard-container > p {
+
+    text-align: center;
+
+    color: #8fa8c7;
+
+    font-size: 15px;
+
+    margin-bottom: 32px;
+}
+
+
+/* ---------- ALERT CONTAINER ---------- */
+
+#alertsContainer {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(310px, 1fr));
+
+    gap: 22px;
+}
+
+
+/* ---------- ALERT CARD ---------- */
+
+.alert-card {
+
+    position: relative;
+
+    padding: 28px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(19, 35, 60, 0.95),
+            rgba(10, 23, 42, 0.95)
+        );
+
+    border: 1px solid rgba(255, 255, 255, 0.09);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.35);
+
+    overflow: hidden;
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+
+/* Red emergency indicator */
+
+.alert-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 4px;
+
+    background: #ef4444;
+
+    box-shadow:
+        0 0 15px rgba(239, 68, 68, 0.55);
+}
+
+
+.alert-card:hover {
+
+    transform: translateY(-5px);
+
+    border-color: rgba(59, 130, 246, 0.35);
+
+    box-shadow:
+        0 22px 45px rgba(0, 0, 0, 0.45);
+}
+
+
+/* ---------- ALERT TITLE ---------- */
+
+.alert-card h2 {
+
+    color: #ffffff;
+
+    font-size: 21px;
+
+    margin-bottom: 20px;
+
+    padding-bottom: 15px;
+
+    border-bottom:
+        1px solid rgba(255, 255, 255, 0.08);
+}
+
+
+/* ---------- ALERT DETAILS ---------- */
+
+.alert-card p {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin: 12px 0;
+
+    font-size: 14px;
+
+    color: #aebed2;
+
+    line-height: 1.5;
+}
+
+
+.alert-card strong {
+
+    color: #e8eef7;
+
+    font-weight: 600;
+}
+
+
+/* ---------- STATUS ---------- */
+
+.alert-card p:last-of-type {
+
+    color: #fca5a5;
+
+    font-weight: 600;
+}
+
+
+/* ---------- LOCATION BUTTON ---------- */
+
+.alert-card button {
+
+    width: 100%;
+
+    margin-top: 18px;
+
+    padding: 14px 18px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #2563eb,
+            #1d4ed8
+        );
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.25);
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
+}
+
+
+.alert-card button:hover {
+
+    transform: translateY(-2px);
+
+    filter: brightness(1.1);
+}
+
+
+/* =========================================
+   LOGIN PAGE SUPPORT
+   ========================================= */
 
 input,
 select {
-    width: 90%;
-    padding: 12px;
-    margin: 10px;
-    font-size: 16px;
-    box-sizing: border-box;
+
+    width: 100%;
+
+    padding: 14px 15px;
+
+    margin: 7px 0;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    border-radius: 11px;
+
+    outline: none;
+
+    background: rgba(255, 255, 255, 0.07);
+
+    color: #ffffff;
+
+    font-size: 15px;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
+
+
+input::placeholder {
+
+    color: #8496ad;
+}
+
+
+input:focus,
+select:focus {
+
+    border-color: #3b82f6;
+
+    background: rgba(255, 255, 255, 0.10);
+
+    box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+
+select option {
+
+    color: #111827;
+
+    background: #ffffff;
+}
+
+
+/* Login button */
 
 button {
-    width: 90%;
-    padding: 12px;
-    margin-top: 15px;
-    font-size: 18px;
-    cursor: pointer;
-}
 
-.sos-button {
-    background-color: red;
-    color: white;
     border: none;
-    border-radius: 50%;
-    width: 200px;
-    height: 200px;
-    font-size: 25px;
-    font-weight: bold;
+
+    border-radius: 11px;
+
+    padding: 13px 20px;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
     cursor: pointer;
+
+    transition: 0.2s ease;
 }
 
-.sos-button:hover {
-    background-color: darkred;
+
+/* =========================================
+   ANIMATION
+   ========================================= */
+
+@keyframes fadeIn {
+
+    from {
+
+        opacity: 0;
+
+        transform: translateY(15px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform: translateY(0);
+
+    }
+}
+
+
+/* =========================================
+   MOBILE RESPONSIVE
+   ========================================= */
+
+@media (max-width: 600px) {
+
+    .container {
+
+        margin: 45px auto;
+
+        padding: 30px 22px;
+
+    }
+
+
+    .container h1 {
+
+        font-size: 27px;
+
+    }
+
+
+    .dashboard-container {
+
+        width: 94%;
+
+        padding: 20px 5px;
+
+    }
+
+
+    .dashboard-container > h1 {
+
+        font-size: 27px;
+
+    }
+
+
+    #alertsContainer {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .alert-card {
+
+        padding: 23px 20px;
+
+    }
+
+
+    .alert-card p {
+
+        flex-direction: column;
+
+        gap: 3px;
+
+    }
+
 }
