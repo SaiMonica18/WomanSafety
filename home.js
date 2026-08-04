@@ -44,11 +44,10 @@ sosButton.addEventListener("click", () => {
         async (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
-
             status.innerText = "⚡ Transmitting alert to Smart Street Lights...";
 
             try {
-                // A. Log to Firebase
+                // Log to Firebase
                 await addDoc(collection(db, "sosAlerts"), {
                     name: user.name,
                     phone: user.mobile,
@@ -59,26 +58,26 @@ sosButton.addEventListener("click", () => {
                     status: "Emergency"
                 });
 
-                // B. Ping Apps Script (Added Cache-Buster Timestamp)
+                // Ping Apps Script
                 const cacheBuster = new Date().getTime();
                 const response = await fetch(`${GAS_URL}?action=triggerSOS&name=${user.name}&lat=${latitude}&lng=${longitude}&t=${cacheBuster}`);
                 const gasData = await response.json();
 
-                // C. Process response
                 if (gasData.distance <= 50 && gasData.nearestPole !== "None") {
-                    triggeredPoleId = gasData.nearestPole;
+                    // SAVE POLE ID TO LOCAL STORAGE SO IT IS NEVER LOST
+                    localStorage.setItem("activeEmergencyPole", gasData.nearestPole);
+                    
                     status.innerHTML = `🚨 ACTIVE ALARM: Nearest street light <b>${gasData.nearestPole}</b> activated (${gasData.distance}m away).`;
                 } else {
                     status.innerHTML = `🚨 ALERT SENT: No smart pole within 50m. Dashboard updated.`;
                 }
 
-                // D. Always show the Safe button so they can resolve the emergency state
                 safeButton.style.display = "block";
 
             } catch (error) {
                 console.error("SOS Error:", error);
                 status.innerText = "❌ Network error. Alert logged to database only.";
-                safeButton.style.display = "block"; // Still allow them to reset UI
+                safeButton.style.display = "block";
             }
         },
         (error) => {
@@ -96,10 +95,16 @@ safeButton.addEventListener("click", async () => {
     safeButton.disabled = true;
 
     try {
-        if (triggeredPoleId && triggeredPoleId !== "None") {
-            // Added Cache-Buster to ensure Google Sheet updates instantly
+        // Retrieve the saved Pole ID from storage
+        const poleToTurnOff = localStorage.getItem("activeEmergencyPole");
+
+        if (poleToTurnOff && poleToTurnOff !== "None") {
             const cacheBuster = new Date().getTime();
-            await fetch(`${GAS_URL}?action=resolveSOS&poleId=${triggeredPoleId}&t=${cacheBuster}`);
+            // Send request to Apps Script
+            await fetch(`${GAS_URL}?action=resolveSOS&poleId=${poleToTurnOff}&t=${cacheBuster}`);
+            
+            // Clear it from storage once successful
+            localStorage.removeItem("activeEmergencyPole");
         }
 
         status.innerHTML = "✅ Safety confirmed. Hardware alarms deactivated.";
@@ -109,7 +114,6 @@ safeButton.addEventListener("click", async () => {
             safeButton.disabled = false;
             sosButton.style.display = "block";
             status.innerText = "System Ready.";
-            triggeredPoleId = null;
         }, 3000);
 
     } catch (error) {
