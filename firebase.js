@@ -5,7 +5,13 @@ import {
     collection,
     addDoc,
     serverTimestamp,
-    onSnapshot
+    onSnapshot,
+    query,       // NEW: Needed for dashboard sorting
+    orderBy,     // NEW: Needed for dashboard sorting
+    limit,       // NEW: Needed for dashboard sorting
+    doc,         // NEW: Needed for finding a specific user
+    setDoc,      // NEW: Needed for saving a new signup
+    getDoc       // NEW: Needed for checking login passwords
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -18,23 +24,23 @@ const firebaseConfig = {
     measurementId: "G-GM1287SRSR"
 };
 
-
 // Initialize Firebase
-
 const app = initializeApp(firebaseConfig);
 
-
 // Connect to Firestore
-
 const db = getFirestore(app);
 
-
 // Export Firebase functions
-
 export {
     db,
     collection,
     addDoc,
     serverTimestamp,
-    onSnapshot
+    onSnapshot,
+    query,       // Exported for dashboard
+    orderBy,     // Exported for dashboard
+    limit,       // Exported for dashboard
+    doc,         // Exported for Signup/Login
+    setDoc,      // Exported for Signup
+    getDoc       // Exported for Login
 };
