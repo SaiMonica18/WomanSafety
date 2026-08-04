@@ -3,58 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Women Safety - Login</title>
+    <title>Smart Safety - Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Safety Network</h1>
-        <h2>User Registration</h2>
+        <h1>Smart Safety</h1>
         
-        <div class="input-group">
-            <label>Full Name</label>
-            <input type="text" id="name" placeholder="Enter your name">
+        <div class="user-info" id="userInfo">
+            <!-- Profile details will load here -->
         </div>
+
+        <!-- Emergency Flow Buttons -->
+        <button id="sosButton" class="btn btn-danger">🚨 EMERGENCY SOS</button>
+        <button id="safeButton" class="btn btn-success" style="display: none;">✅ I AM SAFE</button>
         
-        <div class="input-group">
-            <label>Phone Number</label>
-            <input type="tel" id="phone" placeholder="Enter phone number">
-        </div>
+        <div id="status" class="status-box">System Ready.</div>
         
-        <div class="input-group">
-            <label>Gender</label>
-            <select id="gender">
-                <option value="">Select Gender</option>
-                <option value="Female">Female</option>
-                <option value="Male">Male</option>
-                <option value="Other">Other</option>
-            </select>
-        </div>
-        
-        <button class="btn btn-primary" onclick="login()">Register & Enter</button>
+        <!-- Logout -->
+        <button id="logoutBtn" class="btn btn-logout">Logout</button>
     </div>
 
-    <script>
-        // Check if already logged in
-        if (localStorage.getItem("userName")) {
-            window.location.href = "home.html";
-        }
-
-        function login() {
-            let name = document.getElementById("name").value.trim();
-            let phone = document.getElementById("phone").value.trim();
-            let gender = document.getElementById("gender").value;
-
-            if (!name || !phone || !gender) {
-                alert("Please fill in all details.");
-                return;
-            }
-
-            localStorage.setItem("userName", name);
-            localStorage.setItem("userPhone", phone);
-            localStorage.setItem("userGender", gender);
-            window.location.href = "home.html";
-        }
-    </script>
+    <!-- Ensure Firebase script is treated as a module -->
+    <script type="module" src="home.js"></script>
 </body>
 </html>
