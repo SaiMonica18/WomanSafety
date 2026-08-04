@@ -13,7 +13,6 @@ const logoutBtn = document.getElementById("logoutBtn");
 const sessionData = localStorage.getItem("activeSession");
 
 if (!sessionData) {
-    // If no active session, redirect to login
     window.location.href = "login.html";
 }
 
@@ -27,7 +26,12 @@ userInfo.innerHTML = `
     ⚧️ ${user.gender}
 `;
 
-let triggeredPoleId = null;
+// Check if user refreshed the page during an active emergency
+if (localStorage.getItem("activeEmergencyPole")) {
+    sosButton.style.display = "none";
+    safeButton.style.display = "block";
+    status.innerHTML = `🚨 ACTIVE ALARM: Awaiting safety confirmation.`;
+}
 
 // --- 2. EMERGENCY SOS TRIGGER ---
 sosButton.addEventListener("click", () => {
@@ -44,10 +48,11 @@ sosButton.addEventListener("click", () => {
         async (position) => {
             const latitude = position.coords.latitude;
             const longitude = position.coords.longitude;
+
             status.innerText = "⚡ Transmitting alert to Smart Street Lights...";
 
             try {
-                // Log to Firebase
+                // A. Log to Firebase
                 await addDoc(collection(db, "sosAlerts"), {
                     name: user.name,
                     phone: user.mobile,
@@ -58,20 +63,25 @@ sosButton.addEventListener("click", () => {
                     status: "Emergency"
                 });
 
-                // Ping Apps Script
+                // B. Ping Apps Script (Added Cache-Buster)
                 const cacheBuster = new Date().getTime();
                 const response = await fetch(`${GAS_URL}?action=triggerSOS&name=${user.name}&lat=${latitude}&lng=${longitude}&t=${cacheBuster}`);
                 const gasData = await response.json();
 
+                // C. Process response & Save State
                 if (gasData.distance <= 50 && gasData.nearestPole !== "None") {
+                    
                     // SAVE POLE ID TO LOCAL STORAGE SO IT IS NEVER LOST
                     localStorage.setItem("activeEmergencyPole", gasData.nearestPole);
                     
                     status.innerHTML = `🚨 ACTIVE ALARM: Nearest street light <b>${gasData.nearestPole}</b> activated (${gasData.distance}m away).`;
                 } else {
                     status.innerHTML = `🚨 ALERT SENT: No smart pole within 50m. Dashboard updated.`;
+                    // Save a dummy value so they can still reset the UI
+                    localStorage.setItem("activeEmergencyPole", "None"); 
                 }
 
+                // D. Show Safe button
                 safeButton.style.display = "block";
 
             } catch (error) {
@@ -100,12 +110,12 @@ safeButton.addEventListener("click", async () => {
 
         if (poleToTurnOff && poleToTurnOff !== "None") {
             const cacheBuster = new Date().getTime();
-            // Send request to Apps Script
+            // Send request to Apps Script to turn it OFF
             await fetch(`${GAS_URL}?action=resolveSOS&poleId=${poleToTurnOff}&t=${cacheBuster}`);
-            
-            // Clear it from storage once successful
-            localStorage.removeItem("activeEmergencyPole");
         }
+
+        // Clear it from storage once successful
+        localStorage.removeItem("activeEmergencyPole");
 
         status.innerHTML = "✅ Safety confirmed. Hardware alarms deactivated.";
         
@@ -118,7 +128,7 @@ safeButton.addEventListener("click", async () => {
 
     } catch (error) {
         console.error("Resolve Error:", error);
-        status.innerText = "❌ Error reaching server. Trying to reset UI.";
+        status.innerText = "❌ Error reaching server. Try again.";
         safeButton.disabled = false;
     }
 });
@@ -126,7 +136,6 @@ safeButton.addEventListener("click", async () => {
 // --- 4. LOGOUT ---
 logoutBtn.addEventListener("click", () => {
     if (confirm("Are you sure you want to log out?")) {
-        // Remove only the active session, keeping the registered accounts intact
         localStorage.removeItem("activeSession");
         window.location.href = "login.html";
     }
