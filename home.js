@@ -9,37 +9,34 @@ const status = document.getElementById("status");
 const userInfo = document.getElementById("userInfo");
 const logoutBtn = document.getElementById("logoutBtn");
 
-// Session Management
-const name = localStorage.getItem("userName");
-const phone = localStorage.getItem("userPhone");
-const gender = localStorage.getItem("userGender");
+// 1. Session Management
+const sessionData = localStorage.getItem("activeSession");
 
-// Redirect to login if user data is missing
-if (!name || !phone) {
-    window.location.href = "index.html";
+if (!sessionData) {
+    // If no active session, redirect to login
+    window.location.href = "login.html";
 }
+
+const user = JSON.parse(sessionData);
 
 // Populate User Profile
 userInfo.innerHTML = `
     <strong>Profile Active</strong><br>
-    👤 ${name} <br>
-    📞 ${phone} <br>
-    ⚧️ ${gender}
+    👤 ${user.name} (Age: ${user.age})<br>
+    📞 ${user.mobile} <br>
+    ⚧️ ${user.gender}
 `;
 
-// State variable to track the active street light alarm
 let triggeredPoleId = null;
 
-// --- 1. EMERGENCY SOS TRIGGER ---
+// --- 2. EMERGENCY SOS TRIGGER ---
 sosButton.addEventListener("click", () => {
     status.innerText = "📡 Acquiring precise GPS location...";
-    sosButton.disabled = true; // Prevent spam clicking
-    sosButton.style.opacity = "0.7";
+    sosButton.style.display = "none"; 
 
     if (!navigator.geolocation) {
-        status.innerText = "❌ Location services are not supported by this browser.";
-        sosButton.disabled = false;
-        sosButton.style.opacity = "1";
+        status.innerText = "❌ Location services are not supported.";
+        sosButton.style.display = "block";
         return;
     }
 
@@ -51,90 +48,82 @@ sosButton.addEventListener("click", () => {
             status.innerText = "⚡ Transmitting alert to Smart Street Lights...";
 
             try {
-                // A. Log to Firebase Dashboard
+                // A. Log to Firebase
                 await addDoc(collection(db, "sosAlerts"), {
-                    name: name,
-                    phone: phone,
-                    gender: gender,
+                    name: user.name,
+                    phone: user.mobile,
+                    gender: user.gender,
                     latitude: latitude,
                     longitude: longitude,
                     time: serverTimestamp(),
                     status: "Emergency"
                 });
 
-                // B. Ping Apps Script to calculate distance and trigger ESP32
-                const response = await fetch(`${GAS_URL}?action=triggerSOS&name=${name}&lat=${latitude}&lng=${longitude}`);
+                // B. Ping Apps Script (Added Cache-Buster Timestamp)
+                const cacheBuster = new Date().getTime();
+                const response = await fetch(`${GAS_URL}?action=triggerSOS&name=${user.name}&lat=${latitude}&lng=${longitude}&t=${cacheBuster}`);
                 const gasData = await response.json();
 
-                // C. Process the hardware response
-                if (gasData.distance <= 50) {
+                // C. Process response
+                if (gasData.distance <= 50 && gasData.nearestPole !== "None") {
                     triggeredPoleId = gasData.nearestPole;
                     status.innerHTML = `🚨 ACTIVE ALARM: Nearest street light <b>${gasData.nearestPole}</b> activated (${gasData.distance}m away).`;
                 } else {
-                    status.innerHTML = `🚨 ALERT SENT: No smart pole within 50m (Nearest is ${gasData.distance}m). Cloud dashboard updated.`;
-                    triggeredPoleId = gasData.nearestPole; // Store anyway in case user walks toward it
+                    status.innerHTML = `🚨 ALERT SENT: No smart pole within 50m. Dashboard updated.`;
                 }
 
-                // D. UI Updates: Hide SOS, Show Safe Button
-                sosButton.style.display = "none";
+                // D. Always show the Safe button so they can resolve the emergency state
                 safeButton.style.display = "block";
 
             } catch (error) {
-                console.error(error);
-                status.innerText = "❌ Network error. Could not reach hardware nodes.";
-                sosButton.disabled = false;
-                sosButton.style.opacity = "1";
+                console.error("SOS Error:", error);
+                status.innerText = "❌ Network error. Alert logged to database only.";
+                safeButton.style.display = "block"; // Still allow them to reset UI
             }
         },
         (error) => {
-            console.error(error);
+            console.error("GPS Error:", error);
             status.innerText = "❌ Location access denied. Enable GPS to use SOS.";
-            sosButton.disabled = false;
-            sosButton.style.opacity = "1";
+            sosButton.style.display = "block";
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
 });
 
-// --- 2. I AM SAFE (ALARM RESOLUTION) ---
+// --- 3. I AM SAFE (ALARM RESOLUTION) ---
 safeButton.addEventListener("click", async () => {
     status.innerText = "🔄 Sending deactivation signal...";
     safeButton.disabled = true;
-    safeButton.style.opacity = "0.7";
 
     try {
-        if (triggeredPoleId) {
-            // Tell Apps Script to switch the specific ESP32 buzzer to "OFF"
-            const response = await fetch(`${GAS_URL}?action=resolveSOS&poleId=${triggeredPoleId}`);
-            await response.json();
+        if (triggeredPoleId && triggeredPoleId !== "None") {
+            // Added Cache-Buster to ensure Google Sheet updates instantly
+            const cacheBuster = new Date().getTime();
+            await fetch(`${GAS_URL}?action=resolveSOS&poleId=${triggeredPoleId}&t=${cacheBuster}`);
         }
 
-        // Acknowledge safety and reset UI
         status.innerHTML = "✅ Safety confirmed. Hardware alarms deactivated.";
         
         setTimeout(() => {
             safeButton.style.display = "none";
-            sosButton.style.display = "block";
-            sosButton.disabled = false;
-            sosButton.style.opacity = "1";
             safeButton.disabled = false;
-            safeButton.style.opacity = "1";
+            sosButton.style.display = "block";
             status.innerText = "System Ready.";
             triggeredPoleId = null;
         }, 3000);
 
     } catch (error) {
-        console.error(error);
-        status.innerText = "❌ Error reaching server. Please try again.";
+        console.error("Resolve Error:", error);
+        status.innerText = "❌ Error reaching server. Trying to reset UI.";
         safeButton.disabled = false;
-        safeButton.style.opacity = "1";
     }
 });
 
-// --- 3. LOGOUT ---
+// --- 4. LOGOUT ---
 logoutBtn.addEventListener("click", () => {
-    if (confirm("Are you sure you want to log out of the Safety Network?")) {
-        localStorage.clear();
-        window.location.href = "index.html";
+    if (confirm("Are you sure you want to log out?")) {
+        // Remove only the active session, keeping the registered accounts intact
+        localStorage.removeItem("activeSession");
+        window.location.href = "login.html";
     }
 });
