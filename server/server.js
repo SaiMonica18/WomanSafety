@@ -1,13 +1,16 @@
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const app = express();
 
+// ======================================
+// MIDDLEWARE
+// ======================================
+
 app.use(cors());
 app.use(express.json());
-
 
 // ======================================
 // GMAIL EMAIL TRANSPORTER
@@ -26,17 +29,36 @@ const emailTransporter = nodemailer.createTransport({
     }
 });
 
-
 // ======================================
 // TEST ROUTE
 // ======================================
 
 app.get("/", (req, res) => {
-
-    res.send("Smart Women Safety Backend is running!");
-
+    res.status(200).send("Smart Women Safety Backend is running!");
 });
 
+// ======================================
+// EMAIL TRANSPORTER TEST
+// ======================================
+
+app.get("/test-email", async (req, res) => {
+    try {
+        await emailTransporter.verify();
+
+        res.status(200).json({
+            success: true,
+            message: "Email service is connected successfully"
+        });
+
+    } catch (error) {
+        console.error("Email connection error:", error);
+
+        res.status(500).json({
+            success: false,
+            message: "Email service connection failed"
+        });
+    }
+});
 
 // ======================================
 // SEND EMERGENCY EMAIL
@@ -55,31 +77,51 @@ app.post("/send-email", async (req, res) => {
             longitude
         } = req.body;
 
-
         // ----------------------------------
-        // CHECK EMAIL
+        // CHECK RECIPIENT EMAIL
         // ----------------------------------
 
         if (!email && !emergencyContactEmail) {
 
             return res.status(400).json({
-
                 success: false,
-
                 message: "Emergency email is required"
-
             });
 
         }
 
+        // ----------------------------------
+        // CHECK GMAIL CONFIGURATION
+        // ----------------------------------
+
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+
+            console.error("EMAIL_USER or EMAIL_PASS is missing");
+
+            return res.status(500).json({
+                success: false,
+                message: "Email configuration is missing on server"
+            });
+
+        }
 
         // ----------------------------------
         // GOOGLE MAPS LOCATION
         // ----------------------------------
 
-        const mapLink =
-            `https://maps.google.com/?q=${latitude},${longitude}`;
+        let mapLink = "Location unavailable";
 
+        if (
+            latitude !== undefined &&
+            latitude !== null &&
+            longitude !== undefined &&
+            longitude !== null
+        ) {
+
+            mapLink =
+                `https://maps.google.com/?q=${latitude},${longitude}`;
+
+        }
 
         // ----------------------------------
         // CREATE RECIPIENT LIST
@@ -87,25 +129,16 @@ app.post("/send-email", async (req, res) => {
 
         const recipients = [];
 
-
         if (email) {
-
             recipients.push(email);
-
         }
-
 
         if (
             emergencyContactEmail &&
             emergencyContactEmail !== email
         ) {
-
-            recipients.push(
-                emergencyContactEmail
-            );
-
+            recipients.push(emergencyContactEmail);
         }
-
 
         // ----------------------------------
         // SEND EMAIL
@@ -113,16 +146,14 @@ app.post("/send-email", async (req, res) => {
 
         await emailTransporter.sendMail({
 
-            // Display name shown in Gmail
             from:
                 `"Smart Women Safety" <${process.env.EMAIL_USER}>`,
 
-            // Send to user's email/contact email
             to:
                 recipients.join(", "),
 
             subject:
-                "🚨 EMERGENCY SOS ALERT",
+                "🚨 EMERGENCY SOS ALERT - Smart Women Safety",
 
             text:
 `EMERGENCY ALERT!
@@ -144,7 +175,6 @@ This is an automated emergency alert from Smart Women Safety.`
 
         });
 
-
         // ----------------------------------
         // SUCCESS
         // ----------------------------------
@@ -154,8 +184,7 @@ This is an automated emergency alert from Smart Women Safety.`
             recipients.join(", ")
         );
 
-
-        res.json({
+        return res.status(200).json({
 
             success: true,
 
@@ -163,7 +192,6 @@ This is an automated emergency alert from Smart Women Safety.`
                 "Emergency email sent successfully"
 
         });
-
 
     } catch (error) {
 
@@ -176,8 +204,7 @@ This is an automated emergency alert from Smart Women Safety.`
             error
         );
 
-
-        res.status(500).json({
+        return res.status(500).json({
 
             success: false,
 
@@ -190,17 +217,20 @@ This is an automated emergency alert from Smart Women Safety.`
 
 });
 
-
 // ======================================
 // START SERVER
 // ======================================
 
-const PORT = 5000;
+// IMPORTANT:
+// Render provides its own PORT.
+// Locally it will use 5000.
 
-app.listen(PORT, () => {
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, "0.0.0.0", () => {
 
     console.log(
-        `Backend running on http://localhost:${PORT}`
+        `Smart Women Safety Backend running on port ${PORT}`
     );
 
 });
