@@ -5,25 +5,51 @@ import {
     serverTimestamp
 } from "./firebase.js";
 
+// ===============================
+// EMAILJS INITIALIZATION
+// ===============================
+
+emailjs.init({
+    publicKey: "j4RX_dJK64Ql7eJTs"
+});
+
 
 // ===============================
 // ELEMENTS
 // ===============================
 
-const sosButton = document.getElementById("sosButton");
-const status = document.getElementById("status");
-const userInfo = document.getElementById("userInfo");
+const sosButton =
+    document.getElementById("sosButton");
 
-const profileButton = document.getElementById("profileButton");
-const profileSection = document.getElementById("profileSection");
+const status =
+    document.getElementById("status");
 
-const profileName = document.getElementById("profileName");
-const profilePhone = document.getElementById("profilePhone");
-const profileGender = document.getElementById("profileGender");
-const profileEmail = document.getElementById("profileEmail");
+const userInfo =
+    document.getElementById("userInfo");
 
-const contactName = document.getElementById("contactName");
-const contactEmail = document.getElementById("contactEmail");
+const profileButton =
+    document.getElementById("profileButton");
+
+const profileSection =
+    document.getElementById("profileSection");
+
+const profileName =
+    document.getElementById("profileName");
+
+const profilePhone =
+    document.getElementById("profilePhone");
+
+const profileGender =
+    document.getElementById("profileGender");
+
+const profileEmail =
+    document.getElementById("profileEmail");
+
+const contactName =
+    document.getElementById("contactName");
+
+const contactEmail =
+    document.getElementById("contactEmail");
 
 const updateProfileButton =
     document.getElementById("updateProfileButton");
@@ -33,10 +59,17 @@ const updateProfileButton =
 // GET SAVED USER DETAILS
 // ===============================
 
-let name = localStorage.getItem("userName") || "";
-let phone = localStorage.getItem("userPhone") || "";
-let gender = localStorage.getItem("userGender") || "";
-let email = localStorage.getItem("emergencyEmail") || "";
+let name =
+    localStorage.getItem("userName") || "";
+
+let phone =
+    localStorage.getItem("userPhone") || "";
+
+let gender =
+    localStorage.getItem("userGender") || "";
+
+let email =
+    localStorage.getItem("emergencyEmail") || "";
 
 let emergencyContactName =
     localStorage.getItem("contactName") || "";
@@ -50,6 +83,8 @@ let emergencyContactEmail =
 // ===============================
 
 function showUserInfo() {
+
+    if (!userInfo) return;
 
     userInfo.innerHTML = `
         Name: ${name || "Not available"} <br>
@@ -67,6 +102,8 @@ function showUserInfo() {
 
 function showProfile() {
 
+    if (!profileSection) return;
+
     profileName.value = name;
     profilePhone.value = phone;
     profileGender.value = gender;
@@ -82,6 +119,7 @@ function showProfile() {
 // ===============================
 
 if (profileSection) {
+
     profileSection.style.display = "none";
 }
 
@@ -92,21 +130,26 @@ if (profileSection) {
 
 if (profileButton) {
 
-    profileButton.addEventListener("click", () => {
+    profileButton.addEventListener(
+        "click",
+        () => {
 
-        if (profileSection.style.display === "none") {
+            if (
+                profileSection.style.display === "none"
+            ) {
 
-            profileSection.style.display = "block";
+                profileSection.style.display =
+                    "block";
 
-            showProfile();
+                showProfile();
 
-        } else {
+            } else {
 
-            profileSection.style.display = "none";
+                profileSection.style.display =
+                    "none";
+            }
         }
-
-    });
-
+    );
 }
 
 
@@ -116,137 +159,153 @@ if (profileButton) {
 
 if (updateProfileButton) {
 
-    updateProfileButton.addEventListener("click", () => {
+    updateProfileButton.addEventListener(
+        "click",
+        () => {
 
-        const newName =
-            profileName.value.trim();
+            const newName =
+                profileName.value.trim();
 
-        const newPhone =
-            profilePhone.value.trim();
+            const newPhone =
+                profilePhone.value.trim();
 
-        const newGender =
-            profileGender.value.trim();
+            const newGender =
+                profileGender.value.trim();
 
-        const newEmail =
-            profileEmail.value.trim();
+            const newEmail =
+                profileEmail.value.trim();
 
-        const newContactName =
-            contactName.value.trim();
+            const newContactName =
+                contactName.value.trim();
 
-        const newContactEmail =
-            contactEmail.value.trim();
+            const newContactEmail =
+                contactEmail.value.trim();
 
 
-        // ===============================
-        // VALIDATION
-        // ===============================
+            // ===============================
+            // VALIDATION
+            // ===============================
 
-        if (newName === "") {
+            if (newName === "") {
 
-            alert("Please enter your name.");
-            return;
+                alert(
+                    "Please enter your name."
+                );
+
+                return;
+            }
+
+            if (newPhone === "") {
+
+                alert(
+                    "Please enter your phone number."
+                );
+
+                return;
+            }
+
+            if (newGender === "") {
+
+                alert(
+                    "Please enter your gender."
+                );
+
+                return;
+            }
+
+            if (newEmail === "") {
+
+                alert(
+                    "Please enter emergency email."
+                );
+
+                return;
+            }
+
+            if (newContactName === "") {
+
+                alert(
+                    "Please enter emergency contact name."
+                );
+
+                return;
+            }
+
+            if (newContactEmail === "") {
+
+                alert(
+                    "Please enter emergency contact email."
+                );
+
+                return;
+            }
+
+
+            // ===============================
+            // UPDATE VARIABLES
+            // ===============================
+
+            name = newName;
+            phone = newPhone;
+            gender = newGender;
+            email = newEmail;
+
+            emergencyContactName =
+                newContactName;
+
+            emergencyContactEmail =
+                newContactEmail;
+
+
+            // ===============================
+            // SAVE TO LOCAL STORAGE
+            // ===============================
+
+            localStorage.setItem(
+                "userName",
+                name
+            );
+
+            localStorage.setItem(
+                "userPhone",
+                phone
+            );
+
+            localStorage.setItem(
+                "userGender",
+                gender
+            );
+
+            localStorage.setItem(
+                "emergencyEmail",
+                email
+            );
+
+            localStorage.setItem(
+                "contactName",
+                emergencyContactName
+            );
+
+            localStorage.setItem(
+                "contactEmail",
+                emergencyContactEmail
+            );
+
+
+            // ===============================
+            // REFRESH USER INFORMATION
+            // ===============================
+
+            showUserInfo();
+
+            alert(
+                "Profile updated successfully!"
+            );
+
+            profileSection.style.display =
+                "none";
         }
-
-
-        if (newPhone === "") {
-
-            alert("Please enter your phone number.");
-            return;
-        }
-
-
-        if (newGender === "") {
-
-            alert("Please enter your gender.");
-            return;
-        }
-
-
-        if (newEmail === "") {
-
-            alert("Please enter emergency email.");
-            return;
-        }
-
-
-        if (newContactName === "") {
-
-            alert("Please enter emergency contact name.");
-            return;
-        }
-
-
-        if (newContactEmail === "") {
-
-            alert("Please enter emergency contact email.");
-            return;
-        }
-
-
-        // ===============================
-        // UPDATE VARIABLES
-        // ===============================
-
-        name = newName;
-        phone = newPhone;
-        gender = newGender;
-        email = newEmail;
-
-        emergencyContactName = newContactName;
-        emergencyContactEmail = newContactEmail;
-
-
-        // ===============================
-        // SAVE TO LOCAL STORAGE
-        // ===============================
-
-        localStorage.setItem(
-            "userName",
-            name
-        );
-
-        localStorage.setItem(
-            "userPhone",
-            phone
-        );
-
-        localStorage.setItem(
-            "userGender",
-            gender
-        );
-
-        localStorage.setItem(
-            "emergencyEmail",
-            email
-        );
-
-        localStorage.setItem(
-            "contactName",
-            emergencyContactName
-        );
-
-        localStorage.setItem(
-            "contactEmail",
-            emergencyContactEmail
-        );
-
-
-        // ===============================
-        // REFRESH USER INFORMATION
-        // ===============================
-
-        showUserInfo();
-
-
-        alert(
-            "Profile updated successfully!"
-        );
-
-
-        profileSection.style.display = "none";
-
-    });
-
+    );
 }
 
 
@@ -256,253 +315,305 @@ if (updateProfileButton) {
 
 if (sosButton) {
 
-    sosButton.addEventListener("click", () => {
+    sosButton.addEventListener(
+        "click",
+        () => {
 
-        status.innerText =
-            "Getting your location...";
-
-
-        // ===============================
-        // CHECK LOCATION SUPPORT
-        // ===============================
-
-        if (!navigator.geolocation) {
-
-            status.innerText =
-                "Location is not supported by this browser.";
-
-            return;
-        }
-
-
-        // ===============================
-        // GET CURRENT LOCATION
-        // ===============================
-
-        navigator.geolocation.getCurrentPosition(
-
-            async (position) => {
-
-                const latitude =
-                    position.coords.latitude;
-
-                const longitude =
-                    position.coords.longitude;
-
+            if (status) {
 
                 status.innerText =
-                    "Sending emergency alert...";
+                    "Getting your location...";
+            }
 
 
-                try {
+            // ===============================
+            // CHECK LOCATION SUPPORT
+            // ===============================
 
-                    // ===============================
-                    // SAVE SOS TO FIREBASE
-                    // ===============================
+            if (!navigator.geolocation) {
 
-                    await addDoc(
+                if (status) {
 
-                        collection(
-                            db,
-                            "sosAlerts"
-                        ),
+                    status.innerText =
+                        "Location is not supported by this browser.";
+                }
 
-                        {
-
-                            name:
-                                name || "Unknown",
-
-                            phone:
-                                phone || "Unknown",
-
-                            gender:
-                                gender || "Unknown",
-
-                            email:
-                                email || "Unknown",
-
-                            emergencyContactName:
-                                emergencyContactName ||
-                                "Unknown",
-
-                            emergencyContactEmail:
-                                emergencyContactEmail ||
-                                "Unknown",
-
-                            latitude:
-                                latitude,
-
-                            longitude:
-                                longitude,
-
-                            time:
-                                serverTimestamp(),
-
-                            status:
-                                "Emergency"
-
-                        }
-
-                    );
+                return;
+            }
 
 
-                    // ===============================
-                    // SEND EMAIL THROUGH RENDER
-                    // ===============================
+            // ===============================
+            // GET CURRENT LOCATION
+            // ===============================
 
-                    const response =
-                        await fetch(
+            navigator.geolocation.getCurrentPosition(
 
-                            "https://smart-women-safety.onrender.com/send-email",
+                async (position) => {
+
+                    const latitude =
+                        position.coords.latitude;
+
+                    const longitude =
+                        position.coords.longitude;
+
+
+                    if (status) {
+
+                        status.innerText =
+                            "Saving emergency alert...";
+                    }
+
+
+                    try {
+
+                        // ===============================
+                        // SAVE SOS TO FIREBASE
+                        // ===============================
+
+                        await addDoc(
+
+                            collection(
+                                db,
+                                "sosAlerts"
+                            ),
 
                             {
 
-                                method:
-                                    "POST",
+                                name:
+                                    name || "Unknown",
 
-                                headers: {
+                                phone:
+                                    phone || "Unknown",
 
-                                    "Content-Type":
-                                        "application/json"
+                                gender:
+                                    gender || "Unknown",
 
-                                },
+                                email:
+                                    email || "Unknown",
 
-                                body:
-                                    JSON.stringify({
+                                emergencyContactName:
+                                    emergencyContactName ||
+                                    "Unknown",
 
-                                        name:
-                                            name || "Unknown",
+                                emergencyContactEmail:
+                                    emergencyContactEmail ||
+                                    "Unknown",
 
-                                        phone:
-                                            phone || "Unknown",
+                                latitude:
+                                    latitude,
 
-                                        email:
-                                            email || "",
+                                longitude:
+                                    longitude,
 
-                                        emergencyContactEmail:
-                                            emergencyContactEmail || "",
+                                time:
+                                    serverTimestamp(),
 
-                                        latitude:
-                                            latitude,
-
-                                        longitude:
-                                            longitude
-
-                                    })
-
+                                status:
+                                    "Emergency"
                             }
-
                         );
 
 
-                    // ===============================
-                    // READ SERVER RESPONSE
-                    // ===============================
-
-                    const result =
-                        await response.json();
+                        console.log(
+                            "SOS saved to Firebase successfully."
+                        );
 
 
-                    console.log(
-                        "Backend response:",
-                        result
-                    );
+                        // ===============================
+                        // GOOGLE MAPS LINK
+                        // ===============================
+
+                        const mapLink =
+                            `https://maps.google.com/?q=${latitude},${longitude}`;
 
 
-                    // ===============================
-                    // EMAIL SUCCESS
-                    // ===============================
+                        // ===============================
+                        // CREATE RECIPIENT LIST
+                        // ===============================
 
-                    if (
-                        response.ok &&
-                        result.success
-                    ) {
+                        const recipients = [];
 
-                        status.innerText =
-                            "🚨 Emergency emails sent successfully!";
+
+                        if (email) {
+
+                            recipients.push(email);
+                        }
+
+
+                        if (
+                            emergencyContactEmail &&
+                            emergencyContactEmail !== email
+                        ) {
+
+                            recipients.push(
+                                emergencyContactEmail
+                            );
+                        }
+
+
+                        // ===============================
+                        // CHECK EMAILS
+                        // ===============================
+
+                        if (recipients.length === 0) {
+
+                            if (status) {
+
+                                status.innerText =
+                                    "SOS saved, but no email address found.";
+                            }
+
+                            alert(
+                                "SOS saved, but no email address is available."
+                            );
+
+                            return;
+                        }
+
+
+                        if (status) {
+
+                            status.innerText =
+                                "Sending emergency email...";
+                        }
+
+
+                        // ===============================
+                        // SEND EMAIL TO EACH RECIPIENT
+                        // ===============================
+
+                        for (
+                            const recipient of recipients
+                        ) {
+
+                            await emailjs.send(
+
+                                "service_hn9347h",
+
+                                "template_g213jjx",
+
+                                {
+
+                                    to_email:
+                                        recipient,
+
+                                    name:
+                                        name || "Unknown",
+
+                                    phone:
+                                        phone || "Unknown",
+
+                                    gender:
+                                        gender || "Unknown",
+
+                                    map_link:
+                                        mapLink,
+
+                                    latitude:
+                                        latitude,
+
+                                    longitude:
+                                        longitude
+                                }
+                            );
+                        }
+
+
+                        // ===============================
+                        // EMAIL SUCCESS
+                        // ===============================
+
+                        console.log(
+                            "Emergency email(s) sent successfully."
+                        );
+
+
+                        if (status) {
+
+                            status.innerText =
+                                "🚨 Emergency emails sent successfully!";
+                        }
 
 
                         alert(
                             "🚨 Emergency SOS sent successfully!"
                         );
 
-                    }
 
-                    // ===============================
-                    // EMAIL FAILED
-                    // ===============================
+                    } catch (error) {
 
-                    else {
+                        // ===============================
+                        // ERROR
+                        // ===============================
 
-                        status.innerText =
-                            "SOS saved, but email could not be sent.";
+                        console.error(
+                            "EmailJS / SOS Error:",
+                            error
+                        );
+
+
+                        if (status) {
+
+                            status.innerText =
+                                "SOS saved, but email sending failed.";
+                        }
 
 
                         alert(
-                            "SOS saved, but email sending failed."
+                            "SOS was saved, but email sending failed.\n\n" +
+                            "Error: " +
+                            (error.text ||
+                             error.message ||
+                             "Unknown error")
                         );
-
                     }
 
+                },
 
-                } catch (error) {
+
+                // ===============================
+                // LOCATION ERROR
+                // ===============================
+
+                (error) => {
 
                     console.error(
-                        "SOS Error:",
+                        "Location error:",
                         error
                     );
 
 
-                    status.innerText =
-                        "Error sending emergency alert.";
+                    if (status) {
+
+                        status.innerText =
+                            "Unable to get your location.";
+                    }
 
 
                     alert(
-                        "Error: " +
-                        error.message
+                        "Please allow location access."
                     );
+                },
 
+
+                // ===============================
+                // LOCATION OPTIONS
+                // ===============================
+
+                {
+
+                    enableHighAccuracy:
+                        true,
+
+                    timeout:
+                        10000,
+
+                    maximumAge:
+                        0
                 }
-
-            },
-
-
-            // ===============================
-            // LOCATION ERROR
-            // ===============================
-
-            (error) => {
-
-                console.error(
-                    "Location error:",
-                    error
-                );
-
-
-                status.innerText =
-                    "Unable to get your location.";
-
-
-                alert(
-                    "Please allow location access."
-                );
-
-            },
-
-            {
-
-                enableHighAccuracy: true,
-
-                timeout: 10000,
-
-                maximumAge: 0
-
-            }
-
-        );
-
-    });
-
+            );
+        }
+    );
 }
 
 
