@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 require("dotenv").config();
 
 const app = express();
@@ -13,21 +13,10 @@ app.use(cors());
 app.use(express.json());
 
 // ======================================
-// GMAIL EMAIL TRANSPORTER
+// RESEND
 // ======================================
 
-const emailTransporter = nodemailer.createTransport({
-    service: "gmail",
-
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // ======================================
 // TEST ROUTE
@@ -38,24 +27,65 @@ app.get("/", (req, res) => {
 });
 
 // ======================================
-// EMAIL TRANSPORTER TEST
+// TEST EMAIL ROUTE
 // ======================================
 
 app.get("/test-email", async (req, res) => {
-    try {
-        await emailTransporter.verify();
 
-        res.status(200).json({
+    try {
+
+        if (!process.env.RESEND_API_KEY) {
+
+            return res.status(500).json({
+                success: false,
+                message: "RESEND_API_KEY is missing"
+            });
+
+        }
+
+        const { data, error } = await resend.emails.send({
+
+            from: "Smart Women Safety <onboarding@resend.dev>",
+
+            // IMPORTANT:
+            // Replace this with your own Gmail address
+            to: ["meofeb20@gmail.com"],
+
+            subject: "Smart Women Safety Test Email",
+
+            html: `
+                <h2>Smart Women Safety</h2>
+                <p>Email service is working successfully.</p>
+                <p>This is a test email from the emergency safety system.</p>
+            `
+        });
+
+        if (error) {
+
+            console.error("Resend Error:", error);
+
+            return res.status(500).json({
+                success: false,
+                message: error.message || "Resend email failed"
+            });
+
+        }
+
+        console.log("Test email sent:", data);
+
+        return res.status(200).json({
             success: true,
-            message: "Email service is connected successfully"
+            message: "Test email sent successfully",
+            id: data.id
         });
 
     } catch (error) {
-        console.error("Email connection error:", error);
 
-        res.status(500).json({
+        console.error("Test Email Error:", error);
+
+        return res.status(500).json({
             success: false,
-            message: "Email service connection failed"
+            message: "Failed to send test email"
         });
     }
 });
@@ -77,9 +107,22 @@ app.post("/send-email", async (req, res) => {
             longitude
         } = req.body;
 
-        // ----------------------------------
-        // CHECK RECIPIENT EMAIL
-        // ----------------------------------
+        // ==================================
+        // CHECK RESEND API KEY
+        // ==================================
+
+        if (!process.env.RESEND_API_KEY) {
+
+            return res.status(500).json({
+                success: false,
+                message: "RESEND_API_KEY is missing on server"
+            });
+
+        }
+
+        // ==================================
+        // CHECK EMAIL
+        // ==================================
 
         if (!email && !emergencyContactEmail) {
 
@@ -90,24 +133,9 @@ app.post("/send-email", async (req, res) => {
 
         }
 
-        // ----------------------------------
-        // CHECK GMAIL CONFIGURATION
-        // ----------------------------------
-
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-
-            console.error("EMAIL_USER or EMAIL_PASS is missing");
-
-            return res.status(500).json({
-                success: false,
-                message: "Email configuration is missing on server"
-            });
-
-        }
-
-        // ----------------------------------
-        // GOOGLE MAPS LOCATION
-        // ----------------------------------
+        // ==================================
+        // GOOGLE MAPS LINK
+        // ==================================
 
         let mapLink = "Location unavailable";
 
@@ -120,12 +148,11 @@ app.post("/send-email", async (req, res) => {
 
             mapLink =
                 `https://maps.google.com/?q=${latitude},${longitude}`;
-
         }
 
-        // ----------------------------------
-        // CREATE RECIPIENT LIST
-        // ----------------------------------
+        // ==================================
+        // RECIPIENTS
+        // ==================================
 
         const recipients = [];
 
@@ -140,48 +167,99 @@ app.post("/send-email", async (req, res) => {
             recipients.push(emergencyContactEmail);
         }
 
-        // ----------------------------------
-        // SEND EMAIL
-        // ----------------------------------
+        // ==================================
+        // SEND EMERGENCY EMAIL
+        // ==================================
 
-        await emailTransporter.sendMail({
+        const { data, error } = await resend.emails.send({
 
             from:
-                `"Smart Women Safety" <${process.env.EMAIL_USER}>`,
+                "Smart Women Safety <onboarding@resend.dev>",
 
             to:
-                recipients.join(", "),
+                recipients,
 
             subject:
                 "🚨 EMERGENCY SOS ALERT - Smart Women Safety",
 
-            text:
-`EMERGENCY ALERT!
+            html: `
+                <h2>🚨 EMERGENCY SOS ALERT</h2>
 
-Smart Women Safety Emergency System
+                <p>
+                    <strong>Smart Women Safety Emergency System</strong>
+                </p>
 
-Name: ${name || "Unknown"}
+                <hr>
 
-Phone: ${phone || "Unknown"}
+                <p>
+                    <strong>Name:</strong>
+                    ${name || "Unknown"}
+                </p>
 
-The user has activated the Emergency SOS button.
+                <p>
+                    <strong>Phone:</strong>
+                    ${phone || "Unknown"}
+                </p>
 
-Emergency Location:
-${mapLink}
+                <p>
+                    The user has activated the
+                    <strong>Emergency SOS</strong> button.
+                </p>
 
-Please check the user's location immediately.
+                <p>
+                    <strong>Emergency Location:</strong>
+                </p>
 
-This is an automated emergency alert from Smart Women Safety.`
+                <p>
+                    <a href="${mapLink}" target="_blank">
+                        📍 View Emergency Location on Google Maps
+                    </a>
+                </p>
 
+                <p>
+                    Latitude: ${latitude || "Unknown"}
+                </p>
+
+                <p>
+                    Longitude: ${longitude || "Unknown"}
+                </p>
+
+                <hr>
+
+                <p>
+                    Please check the user's location immediately.
+                </p>
+
+                <p>
+                    This is an automated emergency alert from
+                    Smart Women Safety.
+                </p>
+            `
         });
 
-        // ----------------------------------
+        // ==================================
+        // RESEND ERROR
+        // ==================================
+
+        if (error) {
+
+            console.error("Resend Email Error:", error);
+
+            return res.status(500).json({
+                success: false,
+                message:
+                    error.message ||
+                    "Failed to send emergency email"
+            });
+        }
+
+        // ==================================
         // SUCCESS
-        // ----------------------------------
+        // ==================================
 
         console.log(
-            "Emergency email sent successfully to:",
-            recipients.join(", ")
+            "Emergency email sent successfully:",
+            data.id
         );
 
         return res.status(200).json({
@@ -189,18 +267,16 @@ This is an automated emergency alert from Smart Women Safety.`
             success: true,
 
             message:
-                "Emergency email sent successfully"
+                "Emergency email sent successfully",
 
+            id:
+                data.id
         });
 
     } catch (error) {
 
-        // ----------------------------------
-        // ERROR
-        // ----------------------------------
-
         console.error(
-            "Email Error:",
+            "Emergency Email Error:",
             error
         );
 
@@ -210,27 +286,26 @@ This is an automated emergency alert from Smart Women Safety.`
 
             message:
                 "Failed to send emergency email"
-
         });
-
     }
-
 });
 
 // ======================================
 // START SERVER
 // ======================================
 
-// IMPORTANT:
-// Render provides its own PORT.
-// Locally it will use 5000.
+const PORT =
+    process.env.PORT || 5000;
 
-const PORT = process.env.PORT || 5000;
+app.listen(
+    PORT,
+    "0.0.0.0",
+    () => {
 
-app.listen(PORT, "0.0.0.0", () => {
+        console.log(
+            `Smart Women Safety Backend running on port ${PORT}`
+        );
 
-    console.log(
-        `Smart Women Safety Backend running on port ${PORT}`
-    );
+    }
+);
 
-});
