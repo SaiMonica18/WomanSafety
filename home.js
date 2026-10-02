@@ -10,38 +10,20 @@ import {
 // ELEMENTS
 // ===============================
 
-const sosButton =
-    document.getElementById("sosButton");
+const sosButton = document.getElementById("sosButton");
+const status = document.getElementById("status");
+const userInfo = document.getElementById("userInfo");
 
-const status =
-    document.getElementById("status");
+const profileButton = document.getElementById("profileButton");
+const profileSection = document.getElementById("profileSection");
 
-const userInfo =
-    document.getElementById("userInfo");
+const profileName = document.getElementById("profileName");
+const profilePhone = document.getElementById("profilePhone");
+const profileGender = document.getElementById("profileGender");
+const profileEmail = document.getElementById("profileEmail");
 
-const profileButton =
-    document.getElementById("profileButton");
-
-const profileSection =
-    document.getElementById("profileSection");
-
-const profileName =
-    document.getElementById("profileName");
-
-const profilePhone =
-    document.getElementById("profilePhone");
-
-const profileGender =
-    document.getElementById("profileGender");
-
-const profileEmail =
-    document.getElementById("profileEmail");
-
-const contactName =
-    document.getElementById("contactName");
-
-const contactEmail =
-    document.getElementById("contactEmail");
+const contactName = document.getElementById("contactName");
+const contactEmail = document.getElementById("contactEmail");
 
 const updateProfileButton =
     document.getElementById("updateProfileButton");
@@ -51,23 +33,16 @@ const updateProfileButton =
 // GET SAVED USER DETAILS
 // ===============================
 
-let name =
-    localStorage.getItem("userName");
-
-let phone =
-    localStorage.getItem("userPhone");
-
-let gender =
-    localStorage.getItem("userGender");
-
-let email =
-    localStorage.getItem("emergencyEmail");
+let name = localStorage.getItem("userName") || "";
+let phone = localStorage.getItem("userPhone") || "";
+let gender = localStorage.getItem("userGender") || "";
+let email = localStorage.getItem("emergencyEmail") || "";
 
 let emergencyContactName =
-    localStorage.getItem("contactName");
+    localStorage.getItem("contactName") || "";
 
 let emergencyContactEmail =
-    localStorage.getItem("contactEmail");
+    localStorage.getItem("contactEmail") || "";
 
 
 // ===============================
@@ -92,23 +67,13 @@ function showUserInfo() {
 
 function showProfile() {
 
-    profileName.value =
-        name || "";
+    profileName.value = name;
+    profilePhone.value = phone;
+    profileGender.value = gender;
+    profileEmail.value = email;
 
-    profilePhone.value =
-        phone || "";
-
-    profileGender.value =
-        gender || "";
-
-    profileEmail.value =
-        email || "";
-
-    contactName.value =
-        emergencyContactName || "";
-
-    contactEmail.value =
-        emergencyContactEmail || "";
+    contactName.value = emergencyContactName;
+    contactEmail.value = emergencyContactEmail;
 }
 
 
@@ -116,51 +81,51 @@ function showProfile() {
 // HIDE PROFILE INITIALLY
 // ===============================
 
-profileSection.style.display =
-    "none";
+if (profileSection) {
+    profileSection.style.display = "none";
+}
 
 
 // ===============================
 // PROFILE BUTTON
 // ===============================
 
-profileButton.addEventListener(
-    "click",
-    () => {
+if (profileButton) {
 
-        if (
-            profileSection.style.display ===
-            "none"
-        ) {
+    profileButton.addEventListener("click", () => {
 
-            profileSection.style.display =
-                "block";
+        if (profileSection.style.display === "none") {
+
+            profileSection.style.display = "block";
 
             showProfile();
 
         } else {
 
-            profileSection.style.display =
-                "none";
+            profileSection.style.display = "none";
         }
 
-    }
-);
+    });
+
+}
 
 
 // ===============================
 // UPDATE PROFILE
 // ===============================
 
-updateProfileButton.addEventListener(
-    "click",
-    () => {
+if (updateProfileButton) {
+
+    updateProfileButton.addEventListener("click", () => {
 
         const newName =
             profileName.value.trim();
 
         const newPhone =
             profilePhone.value.trim();
+
+        const newGender =
+            profileGender.value.trim();
 
         const newEmail =
             profileEmail.value.trim();
@@ -173,71 +138,47 @@ updateProfileButton.addEventListener(
 
 
         // ===============================
-        // CHECK NAME
+        // VALIDATION
         // ===============================
 
         if (newName === "") {
 
-            alert(
-                "Please enter your name."
-            );
-
+            alert("Please enter your name.");
             return;
         }
 
-
-        // ===============================
-        // CHECK PHONE
-        // ===============================
 
         if (newPhone === "") {
 
-            alert(
-                "Please enter your phone number."
-            );
-
+            alert("Please enter your phone number.");
             return;
         }
 
 
-        // ===============================
-        // CHECK EMERGENCY EMAIL
-        // ===============================
+        if (newGender === "") {
+
+            alert("Please enter your gender.");
+            return;
+        }
+
 
         if (newEmail === "") {
 
-            alert(
-                "Please enter emergency email."
-            );
-
+            alert("Please enter emergency email.");
             return;
         }
 
-
-        // ===============================
-        // CHECK CONTACT NAME
-        // ===============================
 
         if (newContactName === "") {
 
-            alert(
-                "Please enter emergency contact name."
-            );
-
+            alert("Please enter emergency contact name.");
             return;
         }
 
 
-        // ===============================
-        // CHECK CONTACT EMAIL
-        // ===============================
-
         if (newContactEmail === "") {
 
-            alert(
-                "Please enter emergency contact email."
-            );
-
+            alert("Please enter emergency contact email.");
             return;
         }
 
@@ -246,24 +187,17 @@ updateProfileButton.addEventListener(
         // UPDATE VARIABLES
         // ===============================
 
-        name =
-            newName;
+        name = newName;
+        phone = newPhone;
+        gender = newGender;
+        email = newEmail;
 
-        phone =
-            newPhone;
-
-        email =
-            newEmail;
-
-        emergencyContactName =
-            newContactName;
-
-        emergencyContactEmail =
-            newContactEmail;
+        emergencyContactName = newContactName;
+        emergencyContactEmail = newContactEmail;
 
 
         // ===============================
-        // SAVE DETAILS
+        // SAVE TO LOCAL STORAGE
         // ===============================
 
         localStorage.setItem(
@@ -274,6 +208,11 @@ updateProfileButton.addEventListener(
         localStorage.setItem(
             "userPhone",
             phone
+        );
+
+        localStorage.setItem(
+            "userGender",
+            gender
         );
 
         localStorage.setItem(
@@ -304,20 +243,20 @@ updateProfileButton.addEventListener(
         );
 
 
-        profileSection.style.display =
-            "none";
+        profileSection.style.display = "none";
 
-    }
-);
+    });
+
+}
 
 
 // ===============================
 // SOS BUTTON
 // ===============================
 
-sosButton.addEventListener(
-    "click",
-    () => {
+if (sosButton) {
+
+    sosButton.addEventListener("click", () => {
 
         status.innerText =
             "Getting your location...";
@@ -335,6 +274,10 @@ sosButton.addEventListener(
             return;
         }
 
+
+        // ===============================
+        // GET CURRENT LOCATION
+        // ===============================
 
         navigator.geolocation.getCurrentPosition(
 
@@ -358,10 +301,12 @@ sosButton.addEventListener(
                     // ===============================
 
                     await addDoc(
+
                         collection(
                             db,
                             "sosAlerts"
                         ),
+
                         {
 
                             name:
@@ -395,17 +340,21 @@ sosButton.addEventListener(
 
                             status:
                                 "Emergency"
+
                         }
+
                     );
 
 
                     // ===============================
-                    // SEND EMERGENCY EMAIL
+                    // SEND EMAIL THROUGH RENDER
                     // ===============================
 
                     const response =
                         await fetch(
+
                             "https://smart-women-safety.onrender.com/send-email",
+
                             {
 
                                 method:
@@ -422,29 +371,32 @@ sosButton.addEventListener(
                                     JSON.stringify({
 
                                         name:
-                                            name,
+                                            name || "Unknown",
 
                                         phone:
-                                            phone,
+                                            phone || "Unknown",
 
                                         email:
-                                            email,
+                                            email || "",
 
                                         emergencyContactEmail:
-                                            emergencyContactEmail,
+                                            emergencyContactEmail || "",
 
                                         latitude:
                                             latitude,
 
                                         longitude:
                                             longitude
+
                                     })
+
                             }
+
                         );
 
 
                     // ===============================
-                    // GET SERVER RESPONSE
+                    // READ SERVER RESPONSE
                     // ===============================
 
                     const result =
@@ -452,7 +404,7 @@ sosButton.addEventListener(
 
 
                     console.log(
-                        "Email response:",
+                        "Backend response:",
                         result
                     );
 
@@ -469,14 +421,22 @@ sosButton.addEventListener(
                         status.innerText =
                             "🚨 Emergency emails sent successfully!";
 
+
                         alert(
                             "🚨 Emergency SOS sent successfully!"
                         );
 
-                    } else {
+                    }
+
+                    // ===============================
+                    // EMAIL FAILED
+                    // ===============================
+
+                    else {
 
                         status.innerText =
                             "SOS saved, but email could not be sent.";
+
 
                         alert(
                             "SOS saved, but email sending failed."
@@ -514,6 +474,7 @@ sosButton.addEventListener(
             (error) => {
 
                 console.error(
+                    "Location error:",
                     error
                 );
 
@@ -526,16 +487,27 @@ sosButton.addEventListener(
                     "Please allow location access."
                 );
 
+            },
+
+            {
+
+                enableHighAccuracy: true,
+
+                timeout: 10000,
+
+                maximumAge: 0
+
             }
 
         );
 
-    }
-);
+    });
+
+}
 
 
 // ===============================
-// SHOW USER INFORMATION
+// INITIAL USER INFORMATION
 // ===============================
 
 showUserInfo();
