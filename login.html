@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Safety - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Safety Network</h1>
+        <h2>Secure Login</h2>
+        
+        <div class="input-group">
+            <label>Mobile Number</label>
+            <input type="tel" id="loginMobile" placeholder="Enter registered mobile no" required>
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter password" required>
+        </div>
+        
+        <button class="btn btn-primary" onclick="login()">Login</button>
+
+        <p style="margin-top: 15px; font-size: 0.9rem;">
+            Don't have an account? <a href="signup.html" style="color: #007bff; text-decoration: none;">Sign up here</a>
+        </p>
+    </div>
+
+    <script>
+        // If already logged in, skip login page
+        if (localStorage.getItem("activeSession")) {
+            window.location.href = "home.html";
+        }
+
+        function login() {
+            const mobile = document.getElementById("loginMobile").value.trim();
+            const password = document.getElementById("loginPassword").value;
+
+            if (!mobile || !password) {
+                alert("Please enter mobile number and password.");
+                return;
+            }
+
+            // Retrieve user data
+            const storedUser = localStorage.getItem("user_" + mobile);
+
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+                
+                if (user.password === password) {
+                    // Create an active session
+                    localStorage.setItem("activeSession", JSON.stringify(user));
+                    window.location.href = "home.html";
+                } else {
+                    alert("Incorrect password.");
+                }
+            } else {
+                alert("Account not found. Please sign up.");
+            }
+        }
+    </script>
+</body>
+</html>
