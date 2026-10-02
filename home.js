@@ -172,7 +172,9 @@ updateProfileButton.addEventListener(
             contactEmail.value.trim();
 
 
-        // Check name
+        // ===============================
+        // CHECK NAME
+        // ===============================
 
         if (newName === "") {
 
@@ -184,7 +186,9 @@ updateProfileButton.addEventListener(
         }
 
 
-        // Check phone
+        // ===============================
+        // CHECK PHONE
+        // ===============================
 
         if (newPhone === "") {
 
@@ -196,7 +200,9 @@ updateProfileButton.addEventListener(
         }
 
 
-        // Check emergency email
+        // ===============================
+        // CHECK EMERGENCY EMAIL
+        // ===============================
 
         if (newEmail === "") {
 
@@ -208,7 +214,9 @@ updateProfileButton.addEventListener(
         }
 
 
-        // Check contact name
+        // ===============================
+        // CHECK CONTACT NAME
+        // ===============================
 
         if (newContactName === "") {
 
@@ -220,7 +228,9 @@ updateProfileButton.addEventListener(
         }
 
 
-        // Check contact email
+        // ===============================
+        // CHECK CONTACT EMAIL
+        // ===============================
 
         if (newContactEmail === "") {
 
@@ -282,7 +292,9 @@ updateProfileButton.addEventListener(
         );
 
 
-        // Refresh user information
+        // ===============================
+        // REFRESH USER INFORMATION
+        // ===============================
 
         showUserInfo();
 
@@ -311,7 +323,9 @@ sosButton.addEventListener(
             "Getting your location...";
 
 
-        // Check location support
+        // ===============================
+        // CHECK LOCATION SUPPORT
+        // ===============================
 
         if (!navigator.geolocation) {
 
@@ -391,7 +405,7 @@ sosButton.addEventListener(
 
                     const response =
                         await fetch(
-                            "http://localhost:5000/send-email",
+                            "https://smart-women-safety.onrender.com/send-email",
                             {
 
                                 method:
