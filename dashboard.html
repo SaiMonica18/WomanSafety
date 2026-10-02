@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SOS Emergency Dashboard</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <h1>
+        🚨 SOS Emergency Dashboard
+    </h1>
+
+    <p>
+        Latest 3 Emergency Alerts
+    </p>
+
+    <div id="alertsContainer">
+
+        <p>
+            Loading emergency alerts...
+        </p>
+
+    </div>
+
+</div>
+
+
+<script type="module">
+
+import {
+
+    db,
+    collection,
+    onSnapshot,
+    query,
+    orderBy,
+    limit
+
+}
+
+from "./firebase.js";
+
+
+const alertsContainer =
+document.getElementById("alertsContainer");
+
+
+/* Get only latest 3 alerts */
+
+const sosCollection = query(
+
+    collection(db, "sosAlerts"),
+
+    orderBy("time", "desc"),
+
+    limit(3)
+
+);
+
+
+/* Listen for new alerts in real time */
+
+onSnapshot(
+
+    sosCollection,
+
+    (snapshot) => {
+
+        alertsContainer.innerHTML = "";
+
+
+        if (snapshot.empty) {
+
+            alertsContainer.innerHTML =
+                "<p>No emergency alerts yet.</p>";
+
+            return;
+
+        }
+
+
+        snapshot.forEach(
+
+            (doc) => {
+
+                const data = doc.data();
+
+
+                const alertCard =
+                    document.createElement("div");
+
+
+                alertCard.className =
+                    "alert-card";
+
+
+                alertCard.innerHTML = `
+
+                    <h2>
+                        🚨 Emergency Alert
+                    </h2>
+
+                    <p>
+                        <strong>Name:</strong>
+                        ${data.name || "Unknown"}
+                    </p>
+
+                    <p>
+                        <strong>Gender:</strong>
+                        ${data.gender || "Unknown"}
+                    </p>
+
+                    <p>
+                        <strong>Phone:</strong>
+                        ${data.phone || "Unknown"}
+                    </p>
+
+                    <p>
+                        <strong>Latitude:</strong>
+                        ${data.latitude || "Unknown"}
+                    </p>
+
+                    <p>
+                        <strong>Longitude:</strong>
+                        ${data.longitude || "Unknown"}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        🚨 ${data.status || "Emergency"}
+                    </p>
+
+                    <button
+                    onclick="
+                    window.open(
+                    'https://www.google.com/maps?q=${data.latitude},${data.longitude}',
+                    '_blank'
+                    )">
+
+                        📍 View Location
+
+                    </button>
+
+                `;
+
+
+                alertsContainer.appendChild(
+                    alertCard
+                );
+
+            }
+
+        );
+
+    },
+
+
+    (error) => {
+
+        console.error(
+            "Error loading alerts:",
+            error
+        );
+
+
+        alertsContainer.innerHTML =
+            "<p>Error loading emergency alerts.</p>";
+
+    }
+
+);
+
+</script>
+
+</body>
+
+</html>
